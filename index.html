@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EasyEarn | Earn Online</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f3f4f9; font-family: 'Inter', sans-serif; }
+        .sidebar { transition: 0.3s; width: 0; position: fixed; z-index: 1000; top: 0; left: 0; background-color: #1e3a8a; height: 100%; overflow-x: hidden; }
+        .page-section { display: none; }
+        .active-section { display: block; }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }
+        .method-card { border: 2px solid #e5e7eb; cursor: pointer; transition: 0.2s; border-radius: 1rem; }
+        .method-card:active { transform: scale(0.95); border-color: #3b82f6; }
+    </style>
+</head>
+<body onload="initApp()">
+
+    <div id="mySidebar" class="sidebar shadow-2xl">
+        <div class="p-6 text-white border-b border-blue-800 mb-4">
+            <h2 class="text-2xl font-black italic">EasyEarn</h2>
+        </div>
+        <a href="javascript:void(0)" class="text-gray-200 p-4 block border-b border-blue-800/30" onclick="showSection('home')"><i class="fas fa-home mr-3"></i> Home</a>
+        <a href="javascript:void(0)" class="text-gray-200 p-4 block border-b border-blue-800/30" onclick="showSection('tasks')"><i class="fas fa-tasks mr-3"></i> Task</a>
+        <a href="javascript:void(0)" class="text-gray-200 p-4 block border-b border-blue-800/30" onclick="openWithdrawModal()"><i class="fas fa-wallet mr-3"></i> Withdraw</a>
+        <a href="javascript:void(0)" class="text-gray-200 p-4 block border-b border-blue-800/30" onclick="showSection('stats')"><i class="fas fa-chart-line mr-3"></i> Statistics</a>
+        <a href="javascript:void(0)" class="text-gray-200 p-4 block border-b border-blue-800/30" onclick="showSection('refer')"><i class="fas fa-user-friends mr-3"></i> Referral</a>
+        <a href="javascript:void(0)" class="text-gray-200 p-4 block" onclick="showSection('support')"><i class="fas fa-headset mr-3"></i> Customer Service</a>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="closeNav()"></div>
+
+    <nav class="bg-blue-600 p-4 text-white sticky top-0 z-[500] shadow-lg flex justify-between items-center">
+        <button onclick="openNav()" class="text-2xl"><i class="fas fa-bars"></i></button>
+        <span class="font-black text-xl italic">EasyEarn</span>
+        <div class="bg-blue-900/50 px-4 py-1.5 rounded-full border border-blue-400">
+            <span id="navBalance" class="font-black text-sm">$0.00</span>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 max-w-lg">
+        
+        <div id="home" class="page-section">
+            <div class="bg-gradient-to-br from-blue-700 to-blue-500 rounded-3xl p-8 text-center shadow-xl text-white mb-8">
+                <p class="text-blue-100 text-xs font-bold uppercase mb-2">Main Balance</p>
+                <h2 class="text-6xl font-black mb-6" id="mainBalance">$0.00</h2>
+                <button onclick="openWithdrawModal()" class="w-full bg-white text-blue-600 py-4 rounded-2xl font-black shadow-lg">WITHDRAW</button>
+            </div>
+            
+            <h3 class="text-lg font-black text-gray-800 mb-4 px-1 uppercase italic">Quick Tasks</h3>
+            <div id="homeTaskGrid" class="space-y-3"></div>
+        </div>
+
+        <div id="tasks" class="page-section">
+            <h3 class="text-xl font-black text-gray-800 mb-4 text-center">ALL TASKS</h3>
+            <div id="allTaskGrid" class="space-y-3"></div>
+        </div>
+
+        <div id="stats" class="page-section bg-white p-6 rounded-3xl shadow-sm border">
+            <h3 class="font-black text-center mb-4 italic">MY STATS</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-50 p-4 rounded-2xl text-center"><p class="text-xs text-gray-400">Tasks</p><p class="text-2xl font-black" id="statTasks">0</p></div>
+                <div class="bg-gray-50 p-4 rounded-2xl text-center"><p class="text-xs text-gray-400">Profit</p><p class="text-2xl font-black text-green-500" id="statProfit">$0.00</p></div>
+            </div>
+        </div>
+
+        <div id="refer" class="page-section bg-white p-8 rounded-3xl text-center shadow-sm">
+            <i class="fas fa-users text-4xl text-blue-600 mb-4"></i>
+            <h3 class="font-black text-xl mb-2">Refer Friends</h3>
+            <input type="text" id="refLink" readonly class="w-full p-4 bg-gray-50 border rounded-2xl text-center font-bold mb-4 outline-none">
+            <button onclick="copyRefer()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-md">COPY LINK</button>
+        </div>
+
+        <div id="support" class="page-section space-y-4">
+            <a href="https://t.me/yourtelegram" class="flex items-center p-5 bg-white rounded-2xl border-l-8 border-blue-500 shadow-sm">
+                <i class="fab fa-telegram text-3xl text-blue-500 mr-4"></i>
+                <div><p class="font-black">Telegram Channel</p></div>
+            </a>
+            <a href="whatsapp://send?phone=YOUR_NUM" class="flex items-center p-5 bg-white rounded-2xl border-l-8 border-green-500 shadow-sm">
+                <i class="fab fa-whatsapp text-3xl text-green-500 mr-4"></i>
+                <div><p class="font-black">WhatsApp Chat</p></div>
+            </a>
+        </div>
+    </main>
+
+    <div id="withdrawModal" class="fixed inset-0 bg-black/80 z-[2000] hidden flex items-end justify-center">
+        <div class="bg-white w-full max-w-md rounded-t-[2.5rem] p-8 pb-10 shadow-2xl">
+            
+            <div id="stepMethod">
+                <h3 class="text-xl font-black text-center mb-6 italic uppercase">Select Method</h3>
+                <div class="grid grid-cols-3 gap-3 mb-6">
+                    <div onclick="selectMethod('Bkash')" class="method-card p-4 flex flex-col items-center gap-2">
+                        <div class="w-10 h-10 bg-pink-100 text-pink-600 rounded-lg flex items-center justify-center font-black">BK</div>
+                        <span class="text-xs font-bold">Bkash</span>
+                    </div>
+                    <div onclick="selectMethod('Nagad')" class="method-card p-4 flex flex-col items-center gap-2">
+                        <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center font-black">NG</div>
+                        <span class="text-xs font-bold">Nagad</span>
+                    </div>
+                    <div onclick="selectMethod('Rocket')" class="method-card p-4 flex flex-col items-center gap-2">
+                        <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center font-black">RK</div>
+                        <span class="text-xs font-bold">Rocket</span>
+                    </div>
+                </div>
+                <button onclick="closeWithdrawModal()" class="w-full text-gray-400 font-bold">CANCEL</button>
+            </div>
+
+            <div id="stepNumber" class="hidden">
+                <h3 class="text-xl font-black text-center mb-6 italic uppercase"><span id="selectedName"></span> Number</h3>
+                <div class="flex items-center border-4 border-blue-600 rounded-2xl overflow-hidden mb-6">
+                    <span class="px-4 font-black text-gray-400 text-lg bg-gray-100 py-4">+88</span>
+                    <input type="number" id="payoutNum" placeholder="01XXXXXXXXX" class="w-full p-4 outline-none font-black text-xl">
+                </div>
+                <button onclick="processPayout()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl">NEXT STEP</button>
+            </div>
+
+            <div id="stepShare" class="hidden text-center">
+                <h3 class="text-lg font-black mb-2 text-red-600 uppercase">Verification Required</h3>
+                <p class="text-[10px] text-gray-400 mb-6 font-bold uppercase">Share to 10 friends to verify account</p>
+                <div class="bg-gray-100 rounded-full h-4 w-full mb-2 border">
+                    <div id="shareProgress" class="bg-green-500 h-full w-[0%] transition-all duration-700"></div>
+                </div>
+                <p class="text-xs font-black text-blue-600 mb-6">Shared: <span id="shareCountText">0</span>/10</p>
+                <div class="flex gap-3">
+                    <button onclick="doShare('whatsapp')" class="flex-1 bg-green-500 text-white py-3 rounded-xl font-black">WHATSAPP</button>
+                    <button onclick="doShare('messenger')" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black">MESSENGER</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let balance = 0.00;
+        let tasksDone = 0;
+        let shareCount = 0;
+        const adLink = "https://www.effectivegatecpm.com/gfzir1zffq?key=e142bca6f109bb3cf75b6bad861e4cbe";
+
+        function initApp() {
+            balance = parseFloat(localStorage.getItem('bal')) || 0.00;
+            tasksDone = parseInt(localStorage.getItem('tdon')) || 0;
+            updateUI();
+            loadTasks();
+            document.getElementById('refLink').value = window.location.href;
+            showSection('home');
+        }
+
+        function openNav() { document.getElementById("mySidebar").style.width = "280px"; document.getElementById("overlay").style.display = "block"; }
+        function closeNav() { document.getElementById("mySidebar").style.width = "0"; document.getElementById("overlay").style.display = "none"; }
+        
+        function showSection(id) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-section'));
+            document.getElementById(id).classList.add('active-section');
+            closeNav();
+        }
+
+        function loadTasks() {
+            const grids = [document.getElementById("homeTaskGrid"), document.getElementById("allTaskGrid")];
+            const tasks = ["Sign-up Bonus", "Registration Reward", "Short Survey #1", "Survey Bonus #2", "VIP Reward", "Mega Task", "Daily Checkin", "Quick Reward", "Elite Signup", "Final Task"];
+            grids.forEach(g => { g.innerHTML = ""; tasks.forEach((t, i) => {
+                g.innerHTML += `<div class="bg-white p-5 rounded-2xl shadow-sm border flex justify-between items-center" onclick="handleTask()"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black">${i+1}</div><div><p class="font-black text-sm">${t}</p><p class="text-green-500 font-bold text-xs">+$0.50</p></div></div><i class="fas fa-play text-blue-600"></i></div>`;
+            });});
+        }
+
+        function handleTask() {
+            alert("অবশ্যই task সম্পুর্ন করতে হবে। ফেক কাজ করলে সাইট থেকে ব্যান করা হবে।");
+            window.open(adLink, "_blank");
+            balance += 0.50; tasksDone++;
+            localStorage.setItem('bal', balance); localStorage.setItem('tdon', tasksDone);
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById("mainBalance").innerText = "$" + balance.toFixed(2);
+            document.getElementById("navBalance").innerText = "$" + balance.toFixed(2);
+            document.getElementById("statTasks").innerText = tasksDone;
+            document.getElementById("statProfit").innerText = "$" + balance.toFixed(2);
+        }
+
+        function openWithdrawModal() { if(balance < 5) { alert("Need $5.00"); return; } document.getElementById("withdrawModal").classList.remove('hidden'); }
+        function closeWithdrawModal() { document.getElementById("withdrawModal").classList.add('hidden'); }
+        function selectMethod(name) { document.getElementById("selectedName").innerText = name; document.getElementById("stepMethod").classList.add('hidden'); document.getElementById("stepNumber").classList.remove('hidden'); }
+        function processPayout() { if(document.getElementById("payoutNum").value.length < 11) { alert("Invalid Number"); return; } document.getElementById("stepNumber").classList.add('hidden'); document.getElementById("stepShare").classList.remove('hidden'); }
+        
+        function doShare(type) {
+            shareCount++; if(shareCount > 10) shareCount = 10;
+            document.getElementById("shareProgress").style.width = (shareCount * 10) + "%";
+            document.getElementById("shareCountText").innerText = shareCount;
+            const text = encodeURIComponent("Earn $5 daily! Join: " + window.location.href);
+            if(type === 'whatsapp') window.open(`whatsapp://send?text=${text}`, "_blank");
+            else alert("Share manually to messenger friends.");
+            if(shareCount === 10) alert("Shared 10 times! Verification pending.");
+        }
+
+        function copyRefer() { let i = document.getElementById("refLink"); i.select(); document.execCommand("copy"); alert("Copied!"); }
+    </script>
+</body>
+  </html>
